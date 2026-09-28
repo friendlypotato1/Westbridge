@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Westbridge Interactive Map</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#11161b;color:#eee}
+body{overflow:hidden}.app{height:100%;display:flex;flex-direction:column}
+.top{height:58px;display:flex;align-items:center;gap:10px;padding:8px 12px;background:#1a2026;border-bottom:1px solid #303942}
+.title{font-weight:700;white-space:nowrap}.badge{font-size:11px;color:#aeb8c2;background:#252d35;padding:5px 7px;border-radius:5px}
+.search{margin-left:auto;width:min(300px,38vw);background:#0e1216;color:#fff;border:1px solid #3a444e;border-radius:7px;padding:9px}
+button{background:#252d35;color:#eee;border:1px solid #3b4650;border-radius:7px;padding:8px 10px;cursor:pointer}
+button:hover,.active{background:#3a4651}
+.main{display:flex;flex:1;min-height:0}.side{width:220px;background:#171d23;border-right:1px solid #303942;padding:12px;overflow:auto}
+.side h3{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#aeb8c2;margin:4px 0 8px}
+.filter{width:100%;display:block;text-align:left;margin:5px 0}.legend{margin-top:18px;border-top:1px solid #303942;padding-top:12px}
+.legend div{font-size:12px;color:#c5ccd3;margin:9px 0}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.map{position:relative;flex:1;background:#d8d3c7;overflow:hidden}.map svg{width:100%;height:100%;cursor:grab}.map svg.drag{cursor:grabbing}
+.info{position:absolute;right:14px;top:14px;width:285px;background:#171c22ed;border:1px solid #3b4650;border-radius:10px;padding:13px;display:none}
+.info h2{font-size:16px;margin:0 28px 4px 0}.info .kind{font-size:10px;text-transform:uppercase;color:#aeb8c2}.info p{font-size:13px;line-height:1.45;color:#d1d7dd}.x{position:absolute;right:8px;top:7px}
+.status{position:absolute;bottom:10px;left:10px;background:#171c22dd;border:1px solid #3b4650;border-radius:6px;padding:6px 8px;font-size:11px;color:#c3cbd2}
+.marker{cursor:pointer}.marker circle{stroke:#fff;stroke-width:2}.marker text{font-size:8px;font-weight:800;pointer-events:none;fill:#fff}
+.road{fill:none;stroke-linecap:round}.minor{stroke:#b8b2a7}.major{stroke:#f1ece2}.water{fill:#85b6c8}.district{stroke:#b5aea1;stroke-width:2}.label{fill:#6d685f;font-size:14px;font-weight:700;letter-spacing:.04em;pointer-events:none}
+@media(max-width:700px){.side{width:155px}.badge{display:none}.search{width:35vw}.info{width:240px}}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top"><div class="title">Westbridge Interactive Map</div><div class="badge">FICTIONAL • NOT TO SCALE</div>
+<input class="search" id="search" placeholder="Search locations…"><button id="reset">Reset</button><button id="plus">+</button><button id="minus">−</button></div>
+<div class="main">
+<aside class="side"><h3>Layers</h3>
+<button class="filter active" data-cat="all">All locations</button>
+<button class="filter" data-cat="government">Government</button>
+<button class="filter" data-cat="emergency">Emergency</button>
+<button class="filter" data-cat="transport">Transport</button>
+<button class="filter" data-cat="business">Business</button>
+<button class="filter" data-cat="civic">Civic</button>
+<div class="legend"><h3>Legend</h3>
+<div><span class="dot" style="background:#8758cf"></span>Government</div>
+<div><span class="dot" style="background:#d45454"></span>Emergency</div>
+<div><span class="dot" style="background:#4b8dd0"></span>Transport</div>
+<div><span class="dot" style="background:#c38e3d"></span>Business</div>
+<div><span class="dot" style="background:#4ba76e"></span>Civic</div></div>
+</aside>
+<section class="map" id="mapwrap">
+<svg id="svg" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid meet" aria-label="Fictional map of Westbridge">
+<rect width="1200" height="760" fill="#d8d3c7"/>
+<path class="water" d="M-30 95C160 45 255 180 390 185C545 191 590 62 735 112C875 160 930 250 1230 220L1230 350C1015 380 900 302 755 285C600 267 535 345 370 332C200 320 130 210 -30 250Z"/>
+<path class="district" fill="#e6dfcf" d="M55 285L380 285L405 530L65 535Z"/><path class="district" fill="#ded9ca" d="M405 285L760 285L775 525L410 530Z"/>
+<path class="district" fill="#e8e0d0" d="M775 300L1125 365L1080 590L780 525Z"/><path class="district" fill="#d8d4c8" d="M65 535L410 530L460 730L30 730Z"/>
+<path class="district" fill="#dfd9cc" d="M460 530L780 525L835 730L465 730Z"/><path class="district" fill="#d5d0c5" d="M780 525L1080 590L1160 730L835 730Z"/>
+<path class="road major" stroke-width="18" d="M70 420L1130 450"/><path class="road major" stroke-width="18" d="M620 280L640 720"/>
+<path class="road major" stroke-width="14" d="M260 290L290 720"/><path class="road major" stroke-width="14" d="M890 315L865 720"/>
+<path class="road minor" stroke-width="8" d="M90 355L1080 385"/><path class="road minor" stroke-width="8" d="M100 490L1050 515"/>
+<path class="road minor" stroke-width="8" d="M470 300L480 710"/><path class="road minor" stroke-width="8" d="M760 300L745 710"/>
+<path class="road minor" stroke-width="8" d="M120 620L1080 645"/>
+<path d="M20 610C250 590 360 620 525 605C700 590 870 625 1180 600" fill="none" stroke="#555" stroke-width="4" stroke-dasharray="9 6"/>
+<text class="label" x="115" y="330">NORTH BANK</text><text class="label" x="485" y="330">CITY CENTRE</text>
+<text class="label" x="865" y="370">EASTSIDE</text><text class="label" x="105" y="575">WEST END</text>
+<text class="label" x="510" y="575">SOUTH CENTRAL</text><text class="label" x="900" y="620">INDUSTRIAL DISTRICT</text>
+<text class="label" x="500" y="155">WESTBRIDGE RIVER</text>
+<g id="markers"></g></svg>
+<div class="info" id="info"><button class="x" id="close">×</button><h2 id="iname"></h2><div class="kind" id="ikind"></div><p id="idesc"></p></div>
+<div class="status">Drag to pan • Wheel to zoom • Click markers for details</div>
+</section></div></div>
+<script>
+const places=[
+["Westbridge Government House","government",550,405,"Seat of the First Minister and the Executive Government."],
+["City Assembly","government",700,410,"Legislative chamber for Westbridge's elected City Assembly."],
+["Westbridge Police Service HQ","emergency",345,415,"Headquarters of the Westbridge Police Service."],
+["Westbridge Health Service Central Hospital","emergency",830,445,"Major hospital serving the city."],
+["Westbridge Fire & Rescue HQ","emergency",955,475,"Headquarters of Westbridge Fire & Rescue."],
+["Central Station","transport",620,600,"Main railway station and transport interchange."],
+["Riverside Docks","transport",300,185,"River port and freight-handling area."],
+["Westbridge Bank","business",470,450,"Major commercial bank serving residents and businesses."],
+["Civic Centre","civic",760,420,"Public-facing civic facilities and municipal services."],
+["Westbridge University","civic",150,650,"Higher-education campus."],
+["Industrial Estate","business",1010,650,"Industrial and logistics district."],
+["Westbridge Airport","transport",1060,500,"Regional airport and transport hub."]
+];
+const colours={government:"#8758cf",emergency:"#d45454",transport:"#4b8dd0",business:"#c38e3d",civic:"#4ba76e"};
+const svg=document.getElementById("svg"), markers=document.getElementById("markers"), info=document.getElementById("info");
+let category="all", view={x:0,y:0,w:1200,h:760};
+function draw(){
+ markers.innerHTML="";
+ const q=document.getElementById("search").value.toLowerCase().trim();
+ places.filter(p=>(category==="all"||p[1]===category)&&(!q||p[0].toLowerCase().includes(q))).forEach(p=>{
+  const g=document.createElementNS("http://www.w3.org/2000/svg","g");g.classList.add("marker");g.setAttribute("transform",`translate(${p[2]} ${p[3]})`);
+  g.innerHTML=`<circle r="12" fill="${colours[p[1]]}"></circle><text text-anchor="middle" y="3">●</text>`;
+  g.addEventListener("click",e=>{e.stopPropagation();document.getElementById("iname").textContent=p[0];document.getElementById("ikind").textContent=p[1];document.getElementById("idesc").textContent=p[4];info.style.display="block"});
+  markers.appendChild(g);
+ });
+}
+function apply(){svg.setAttribute("viewBox",`${view.x} ${view.y} ${view.w} ${view.h}`)}
+function zoom(f,cx=600,cy=380){const nw=view.w*f,nh=view.h*f;view.x=cx-(cx-view.x)*f;view.y=cy-(cy-view.y)*f;view.w=nw;view.h=nh;apply()}
+document.getElementById("plus").onclick=()=>zoom(.83);document.getElementById("minus").onclick=()=>zoom(1.2);
+document.getElementById("reset").onclick=()=>{view={x:0,y:0,w:1200,h:760};apply();info.style.display="none"};
+document.getElementById("close").onclick=()=>info.style.display="none";
+document.getElementById("search").oninput=draw;
+document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");category=b.dataset.cat;draw()});
+let dragging=false,sx=0,sy=0,start;
+svg.addEventListener("mousedown",e=>{dragging=true;sx=e.clientX;sy=e.clientY;start={...view};svg.classList.add("drag")});
+window.addEventListener("mouseup",()=>{dragging=false;svg.classList.remove("drag")});
+window.addEventListener("mousemove",e=>{if(!dragging)return;const r=svg.getBoundingClientRect();view.x=start.x-(e.clientX-sx)*start.w/r.width;view.y=start.y-(e.clientY-sy)*start.h/r.height;apply()});
+svg.addEventListener("wheel",e=>{e.preventDefault();const r=svg.getBoundingClientRect();const cx=view.x+(e.clientX-r.left)/r.width*view.w,cy=view.y+(e.clientY-r.top)/r.height*view.h;zoom(e.deltaY<0?.88:1.14,cx,cy)},{passive:false});
+draw();
+</script>
+</body></html>
